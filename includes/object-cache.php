@@ -235,8 +235,12 @@ function wp_cache_init() {
         define( 'WP_REDIS_PREFIX', getenv( 'WP_REDIS_PREFIX' ) );
     }
 
-    if ( ! defined( 'WP_REDIS_SELECTIVE_FLUSH' ) && getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) ) {
-        define( 'WP_REDIS_SELECTIVE_FLUSH', (bool) getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) );
+    if ( ! defined( 'WP_REDIS_SELECTIVE_FLUSH' ) && false !== getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) && '' !== getenv( 'WP_REDIS_SELECTIVE_FLUSH' ) ) {
+        define( 'WP_REDIS_SELECTIVE_FLUSH', filter_var( getenv( 'WP_REDIS_SELECTIVE_FLUSH' ), FILTER_VALIDATE_BOOLEAN ) );
+    }
+
+    if ( ! defined( 'WP_REDIS_IGBINARY' ) && false !== getenv( 'WP_REDIS_IGBINARY' ) && '' !== getenv( 'WP_REDIS_IGBINARY' ) ) {
+        define( 'WP_REDIS_IGBINARY', filter_var( getenv( 'WP_REDIS_IGBINARY' ), FILTER_VALIDATE_BOOLEAN ) );
     }
 
     // Backwards compatibility: map `WP_CACHE_KEY_SALT` constant to `WP_REDIS_PREFIX`.
@@ -526,7 +530,7 @@ class WP_Object_Cache {
 
         $this->cache_group_types();
 
-        $this->use_igbinary = defined( 'WP_REDIS_IGBINARY' ) && WP_REDIS_IGBINARY && extension_loaded( 'igbinary' );
+        $this->use_igbinary = defined( 'WP_REDIS_IGBINARY' ) && filter_var( WP_REDIS_IGBINARY, FILTER_VALIDATE_BOOLEAN ) && extension_loaded( 'igbinary' );
 
         $client = $this->determine_client();
         $parameters = $this->build_parameters();
